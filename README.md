@@ -6,6 +6,16 @@
 
 Track Finder est un prototype full-stack inspiré du principe de Shazam : il enregistre **5 secondes d'audio depuis le navigateur**, identifie un morceau avec **ShazamIO**, présente ses informations et conserve un historique local.
 
+## 🌐 Essayer dans le navigateur
+
+Une interface publique peut être mise en ligne avec le fichier [render.yaml](render.yaml) (instructions : [ONLINE_DEMO.md](ONLINE_DEMO.md)). **Le dépôt ne constitue pas à lui seul un site hébergé** : un déploiement HTTPS chez un hébergeur est nécessaire.
+
+- **Essayer la démo sans micro** : affiche un morceau fictif et les liens d'écoute, sans appeler Shazam ni modifier l'historique.
+- **Lancer l'écoute (5s)** : vraie reconnaissance via le microphone du navigateur et ShazamIO ; exige une connexion HTTPS sur un site distant.
+- **GET /health** : endpoint de vérification de disponibilité.
+
+> La démo illustre l'interface uniquement : les résultats ne sont pas des identifications réelles. Un déploiement accessible publiquement doit être protégé contre les usages abusifs ; l'historique SQLite est commun à tous les visiteurs.
+
 ## ✨ Fonctionnalités
 
 - Capture microphone avec `getUserMedia` et `MediaRecorder`, compte à rebours de 5 secondes.
@@ -78,6 +88,8 @@ L'autorisation d'accès au microphone est indispensable. Un déploiement web dis
 | GET | `/` | Interface de l'application |
 | POST | `/recognize` | Analyse d'un fichier audio (champ `file` en multipart) |
 | GET | `/history` | Historique des 10 dernières identifications |
+| GET | `/demo/track` | Réponse fictive pour le mode démonstration |
+| GET | `/health` | Vérification de disponibilité |
 
 ```bash
 curl -X POST http://localhost:8000/recognize -F "file=@extrait.webm"
@@ -90,6 +102,9 @@ La réponse à une reconnaissance réussie contient `status: "success"` et les m
 ```text
 track-finder/
 ├── main.py             # API, frontend et accès SQLite
+├── demo.py             # Endpoint de démonstration sans Shazam
+├── render.yaml         # Configuration de déploiement Render
+├── ONLINE_DEMO.md      # Instructions de publication HTTPS
 ├── requirements.txt    # Dépendances de l'application
 ├── Dockerfile          # Image Python et FFmpeg
 ├── docker-compose.yml  # Service web sur le port 8000
