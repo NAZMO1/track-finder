@@ -6,15 +6,24 @@
 
 Track Finder est un prototype full-stack inspiré du principe de Shazam : il enregistre **5 secondes d'audio depuis le navigateur**, identifie un morceau avec **ShazamIO**, présente ses informations et conserve un historique local.
 
-## 🌐 Essayer dans le navigateur
+## 🌐 Démonstration en ligne — accès recruteur
 
-Une interface publique peut être mise en ligne avec le fichier [render.yaml](render.yaml) (instructions : [ONLINE_DEMO.md](ONLINE_DEMO.md)). **Le dépôt ne constitue pas à lui seul un site hébergé** : un déploiement HTTPS chez un hébergeur est nécessaire.
+**Statut : déploiement public à effectuer.** La version de démonstration est prête à être hébergée, mais aucune URL publique fonctionnelle n’est encore disponible. Le fichier [render.yaml](render.yaml) et le guide [ONLINE_DEMO.md](ONLINE_DEMO.md) expliquent comment la publier sur Render.
 
 - **Essayer la démo sans micro** : affiche un morceau fictif et les liens d'écoute, sans appeler Shazam ni modifier l'historique.
 - **Lancer l'écoute (5s)** : vraie reconnaissance via le microphone du navigateur et ShazamIO ; exige une connexion HTTPS sur un site distant.
 - **GET /health** : endpoint de vérification de disponibilité.
 
 > La démo illustre l'interface uniquement : les résultats ne sont pas des identifications réelles. Un déploiement accessible publiquement doit être protégé contre les usages abusifs ; l'historique SQLite est commun à tous les visiteurs.
+
+### Comment tester rapidement
+
+1. Après déploiement, ouvrir l’URL HTTPS de Track Finder.
+2. Cliquer sur **Essayer la démo sans micro** pour explorer l’affichage des résultats fictifs.
+3. Pour une identification réelle, lancer une musique à proximité, cliquer sur **Lancer l’écoute (5s)** et autoriser le microphone.
+4. Consulter l’historique des dix dernières identifications réelles.
+
+**Vous souhaitez déployer ce projet ?** Suivez [le guide pas à pas](ONLINE_DEMO.md), puis ajoutez l’URL réelle dans la description GitHub. Le bouton de démonstration ne réalise aucune reconnaissance audio.
 
 ## ✨ Fonctionnalités
 
