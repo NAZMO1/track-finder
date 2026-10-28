@@ -1,5 +1,6 @@
 import os
 import shutil
+import tempfile
 import urllib.parse
 from datetime import datetime
 from fastapi import FastAPI, UploadFile, File, Depends
@@ -206,11 +207,17 @@ def get_history(db: Session = Depends(get_db)):
 
 @app.post("/recognize")
 async def recognize_audio(file: UploadFile = File(...), db: Session = Depends(get_db)):
-    temp_path = f"temp_{file.filename}"
+    # Use a server-generated path instead of a user-provided filename.
+    # Keeping the uploaded extension helps audio decoders identify the format.
+    extension = os.path.splitext(file.filename or "")[1].lower()
+    if extension not in {".webm", ".wav", ".mp3", ".ogg", ".m4a", ".mp4"}:
+        extension = ".webm"
+    with tempfile.NamedTemporaryFile(prefix="track_finder_", suffix=extension, delete=False) as temporary_file:
+        temp_path = temporary_file.name
     try:
         with open(temp_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
-        
+
         result = await shazam.recognize(temp_path)
         track = result.get("track")
         
