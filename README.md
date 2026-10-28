@@ -6,6 +6,25 @@
 
 Track Finder est un prototype full-stack inspiré du principe de Shazam : il enregistre **5 secondes d'audio depuis le navigateur**, identifie un morceau avec **ShazamIO**, présente ses informations et conserve un historique local.
 
+## 🌐 Démonstration en ligne — accès recruteur
+
+**Statut : déploiement public à effectuer.** La version de démonstration est prête à être hébergée, mais aucune URL publique fonctionnelle n’est encore disponible. Le fichier [render.yaml](render.yaml) et le guide [ONLINE_DEMO.md](ONLINE_DEMO.md) expliquent comment la publier sur Render.
+
+- **Essayer la démo sans micro** : affiche un morceau fictif et les liens d'écoute, sans appeler Shazam ni modifier l'historique.
+- **Lancer l'écoute (5s)** : vraie reconnaissance via le microphone du navigateur et ShazamIO ; exige une connexion HTTPS sur un site distant.
+- **GET /health** : endpoint de vérification de disponibilité.
+
+> La démo illustre l'interface uniquement : les résultats ne sont pas des identifications réelles. Un déploiement accessible publiquement doit être protégé contre les usages abusifs ; l'historique SQLite est commun à tous les visiteurs.
+
+### Comment tester rapidement
+
+1. Après déploiement, ouvrir l’URL HTTPS de Track Finder.
+2. Cliquer sur **Essayer la démo sans micro** pour explorer l’affichage des résultats fictifs.
+3. Pour une identification réelle, lancer une musique à proximité, cliquer sur **Lancer l’écoute (5s)** et autoriser le microphone.
+4. Consulter l’historique des dix dernières identifications réelles.
+
+**Vous souhaitez déployer ce projet ?** Suivez [le guide pas à pas](ONLINE_DEMO.md), puis ajoutez l’URL réelle dans la description GitHub. Le bouton de démonstration ne réalise aucune reconnaissance audio.
+
 ## ✨ Fonctionnalités
 
 - Capture microphone avec `getUserMedia` et `MediaRecorder`, compte à rebours de 5 secondes.
@@ -78,6 +97,8 @@ L'autorisation d'accès au microphone est indispensable. Un déploiement web dis
 | GET | `/` | Interface de l'application |
 | POST | `/recognize` | Analyse d'un fichier audio (champ `file` en multipart) |
 | GET | `/history` | Historique des 10 dernières identifications |
+| GET | `/demo/track` | Réponse fictive pour le mode démonstration |
+| GET | `/health` | Vérification de disponibilité |
 
 ```bash
 curl -X POST http://localhost:8000/recognize -F "file=@extrait.webm"
@@ -90,6 +111,9 @@ La réponse à une reconnaissance réussie contient `status: "success"` et les m
 ```text
 track-finder/
 ├── main.py             # API, frontend et accès SQLite
+├── demo.py             # Endpoint de démonstration sans Shazam
+├── render.yaml         # Configuration de déploiement Render
+├── ONLINE_DEMO.md      # Instructions de publication HTTPS
 ├── requirements.txt    # Dépendances de l'application
 ├── Dockerfile          # Image Python et FFmpeg
 ├── docker-compose.yml  # Service web sur le port 8000
