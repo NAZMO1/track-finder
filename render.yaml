@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: track-finder-demo
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:////tmp/track-finder.db

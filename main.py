@@ -8,8 +8,9 @@ from fastapi.responses import HTMLResponse
 from shazamio import Shazam
 from sqlalchemy import Column, Integer, String, DateTime, create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
+from demo import router as demo_router
 
-DATABASE_URL = "sqlite:///./tracks.db"
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./tracks.db")
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -33,6 +34,11 @@ def get_db():
         db.close()
 
 app = FastAPI(title="Track Finder API")
+app.include_router(demo_router)
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 shazam = Shazam()
 
 HTML_CONTENT = """
@@ -46,6 +52,8 @@ HTML_CONTENT = """
         .card { background: #1e293b; padding: 2.5rem; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; max-width: 480px; width: 100%; margin-bottom: 2rem; }
         button.record-btn { background: #0284c7; color: white; border: none; padding: 1rem 2rem; font-size: 1.1rem; border-radius: 9999px; cursor: pointer; transition: 0.2s; font-weight: bold; }
         button.record-btn:hover { background: #0369a1; }
+        .demo-btn { margin-top: 0.85rem; background: #334155; color: white; border: 1px solid #64748b; padding: 0.75rem 1.5rem; border-radius: 9999px; cursor: pointer; font-weight: 600; }
+        .demo-note { color: #94a3b8; font-size: 0.8rem; margin-top: 0.7rem; }
         button.record-btn:disabled { background: #475569; cursor: not-allowed; }
         #status { margin-top: 1.5rem; font-size: 0.95rem; color: #94a3b8; }
         #result { margin-top: 1.5rem; display: none; }
@@ -75,6 +83,8 @@ HTML_CONTENT = """
         <p style="color: #cbd5e1; margin-bottom: 1.5rem;">Reconnaissance acoustique instantanée</p>
         
         <button id="recordBtn" class="record-btn" onclick="startRecognition()">Lancer l'écoute (5s)</button>
+        <div><button class="demo-btn" id="demoBtn" onclick="tryDemo()">✨ Essayer la démo sans micro</button></div>
+        <div class="demo-note">Démonstration fictive : pour identifier une vraie musique, utilisez le microphone.</div>
         <div id="status">Prêt à écouter</div>
 
         <div id="result">
@@ -115,6 +125,38 @@ HTML_CONTENT = """
             `).join('');
         }
 
+        function showTrack(data) {
+            const track = data.track;
+            document.getElementById("title").textContent = track.title;
+            document.getElementById("artist").textContent = track.subtitle;
+            const cover = document.getElementById("cover");
+            cover.style.display = track.cover ? "inline-block" : "none";
+            if (track.cover) cover.src = track.cover;
+            document.getElementById("spotifyLink").href = track.spotify_url;
+            document.getElementById("youtubeLink").href = track.youtube_url;
+            const appleLink = document.getElementById("appleLink");
+            appleLink.style.display = track.apple_url ? "inline-flex" : "none";
+            if (track.apple_url) appleLink.href = track.apple_url;
+            document.getElementById("result").style.display = "block";
+        }
+
+        async function tryDemo() {
+            const btn = document.getElementById("demoBtn");
+            const status = document.getElementById("status");
+            btn.disabled = true;
+            try {
+                const response = await fetch("/demo/track");
+                if (!response.ok) throw new Error("Demo unavailable");
+                const data = await response.json();
+                showTrack(data);
+                status.textContent = "🧪 Mode démo : données fictives, aucune reconnaissance effectuée.";
+            } catch (error) {
+                status.textContent = "Impossible de charger la démonstration.";
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
         async function startRecognition() {
             const btn = document.getElementById("recordBtn");
             const status = document.getElementById("status");
@@ -141,23 +183,7 @@ HTML_CONTENT = """
                         const data = await res.json();
 
                         if (data.status === "success") {
-                            document.getElementById("title").innerText = data.track.title;
-                            document.getElementById("artist").innerText = data.track.subtitle;
-                            document.getElementById("cover").src = data.track.cover;
-
-                            // Liens de streaming
-                            document.getElementById("spotifyLink").href = data.track.spotify_url;
-                            document.getElementById("youtubeLink").href = data.track.youtube_url;
-                            
-                            const appleLink = document.getElementById("appleLink");
-                            if (data.track.apple_url) {
-                                appleLink.href = data.track.apple_url;
-                                appleLink.style.display = "inline-flex";
-                            } else {
-                                appleLink.style.display = "none";
-                            }
-
-                            resultBox.style.display = "block";
+                            showTrack(data);
                             status.innerText = "✅ Morceau identifié et archivé !";
                             fetchHistory();
                         } else {
