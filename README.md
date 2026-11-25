@@ -57,15 +57,23 @@ Arrêter avec `docker compose down`. Le volume `.:/app` du fichier Compose conse
 
 Prévoir **Python 3.12** et **FFmpeg** dans le PATH.
 
-```bash
-python -m venv .venv
-# Linux/macOS
-source .venv/bin/activate
-# Windows PowerShell : .venv\Scripts\Activate.ps1
+**Linux / macOS**
 
-pip install -r requirements.txt
-uvicorn main:app --reload
+```bash
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m uvicorn main:app --reload
 ```
+
+**Windows PowerShell**
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m uvicorn main:app --reload
+```
+
+Lancer ces commandes depuis la racine du dépôt.
 
 Application : **http://127.0.0.1:8000** · Documentation interactive : **http://127.0.0.1:8000/docs**
 
